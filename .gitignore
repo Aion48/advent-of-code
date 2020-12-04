@@ -4,5 +4,7 @@ bower_components
 node_modules
 
 # Generated files
-.psci
+.psci*
 output
+.purs-repl
+.spago
