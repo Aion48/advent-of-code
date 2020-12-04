@@ -2,7 +2,6 @@ module Main where
 
 import Prelude
 
-import Control.Comonad.Env (local)
 import Control.MonadZero (guard)
 import Data.Array as Array
 import Data.Int as Int
@@ -12,7 +11,6 @@ import Effect (Effect)
 import Effect.Class.Console (log, logShow)
 import Node.Encoding (Encoding(..))
 import Node.FS.Sync (readTextFile)
-import Node.Stream (onFinish)
 
 main :: Effect Unit
 main = do
@@ -26,8 +24,9 @@ main = do
     summed = do
       a <- numbers
       b <- numbers
-      guard $ a + b == 2020 
-      pure $ a * b
+      c <- numbers
+      guard $ a + b + c == 2020 
+      pure $ a * b * c
     
     result :: Maybe Int
     result = Array.head summed
