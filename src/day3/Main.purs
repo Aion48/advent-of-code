@@ -25,16 +25,19 @@ main = do
     linesbrokenup :: Array (Array Char)
     linesbrokenup = map toCharArray lines'
     
-    count :: Array (Array Char) -> Array Int
-    count arr = do
+    count :: Array (Array Char) -> Int -> Int -> Array Int
+    count arr right down = do
       i <- Array.range 0 $ Array.length linesbrokenup
 
-      guard ((fromMaybe '.' (Array.index (fromMaybe [] (Array.index linesbrokenup i)) (mod (i * 3) 31))) == '#')
+      guard ((mod i down) == 0)
+      guard ((fromMaybe '.' (Array.index (fromMaybe [] (Array.index linesbrokenup i)) (mod ((i / down) * right) 31))) == '#')
 
       pure i
 
-  --logShow (Array.index (fromMaybe [] (Array.index linesbrokenup 1)) (mod (1 * 3) 31))
-  logShow $ Array.length $ count linesbrokenup
+    
+  logShow (36 * 74 * 80 * 184 * 62)
+  --logShow $ (Array.length $ count linesbrokenup 3 1)
+  --logShow ( (Array.length $ count linesbrokenup 1 1) * (Array.length $ count linesbrokenup 3 1) * (Array.length $ count linesbrokenup 5 1) * (Array.length $ count linesbrokenup 7 1) * (Array.length $ count linesbrokenup 1 2)               ) 
   pure unit 
 
   
