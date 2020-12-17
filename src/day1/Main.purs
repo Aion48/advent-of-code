@@ -24,9 +24,8 @@ main = do
     summed = do
       a <- numbers
       b <- numbers
-      c <- numbers
-      guard $ a + b + c == 2020 
-      pure $ a * b * c
+      guard $ a + b == 2020 
+      pure $ a * b
     
     result :: Maybe Int
     result = Array.head summed
