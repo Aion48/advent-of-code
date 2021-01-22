@@ -25,13 +25,23 @@ main = do
 
     grid = map (toCharArray) lined
 
+    lookindirection :: Int -> Int -> Int -> Int -> Array (Array Char) -> Boolean
+    lookindirection x y xd yd arr =
+      if (fromMaybe '_' (index (fromMaybe [] (index arr (y + yd)))  (x + xd) )) == '#'
+            then true
+            else 
+                  if (fromMaybe '_' (index (fromMaybe [] (index arr (y + yd)))  (x + xd) )) == '.'
+                        then lookindirection (x + xd) (y + yd) xd yd arr
+                        else false
+
+
     occupiedneighbors :: Int -> Int -> Array (Array Char) -> Int
     occupiedneighbors x y arr = length do
                         xaxis <- [-1,0,1]
                         yaxis <- [-1,0,1]
 
                         guard $ not (xaxis == 0 && yaxis == 0)
-                        guard $ (fromMaybe '.' (index (fromMaybe [] (index arr (y + yaxis)))  (x + xaxis) )) == '#'
+                        guard $ lookindirection x y xaxis yaxis arr
 
                         pure [xaxis,yaxis]
 
@@ -53,7 +63,7 @@ main = do
                         y <- 0 `range` ((length arr) - 1)
                         
                         guard ((fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y)) ) (x))) == '#')
-                        guard ((occupiedneighbors x y arr) > 3)
+                        guard ((occupiedneighbors x y arr) > 4)
 
                         pure [x,y]     
         
