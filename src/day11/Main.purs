@@ -3,8 +3,9 @@ module Main where
 import Prelude
 
 import Control.MonadZero (guard)
-import Data.Array (head, index, length, range, tail, updateAt)
+import Data.Array (filter, head, index, length, range, tail, updateAt)
 import Data.Array as Array
+import Data.Foldable (sum)
 import Data.Int as Int
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String.CodeUnits (toCharArray)
@@ -25,32 +26,16 @@ main = do
     grid = map (toCharArray) lined
 
     occupiedneighbors :: Int -> Int -> Array (Array Char) -> Int
-    occupiedneighbors x y arr = a + b + c + d + e + f + g + h 
-      where
-        a = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y - 1)) ) (x - 1))) == '#'
-              then 1
-              else 0
-        b = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y - 1)) ) (x))) == '#'
-              then 1
-              else 0
-        c = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y - 1)) ) (x + 1))) == '#'
-              then 1
-              else 0
-        d = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y)) ) (x - 1))) == '#'
-              then 1
-              else 0
-        e = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y)) ) (x + 1))) == '#'
-              then 1
-              else 0
-        f = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y + 1)) ) (x - 1))) == '#'
-              then 1
-              else 0
-        g = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y + 1)) ) (x))) == '#'
-              then 1
-              else 0
-        h = if (fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y + 1)) ) (x + 1))) == '#'
-              then 1
-              else 0
+    occupiedneighbors x y arr = length do
+                        xaxis <- [-1,0,1]
+                        yaxis <- [-1,0,1]
+
+                        guard $ not (xaxis == 0 && yaxis == 0)
+                        guard $ (fromMaybe '.' (index (fromMaybe [] (index arr (y + yaxis)))  (x + xaxis) )) == '#'
+
+                        pure [xaxis,yaxis]
+
+        
 
     runstep :: Array (Array Char) -> Array (Array Char)
     runstep arr = newgrid
@@ -59,18 +44,18 @@ main = do
                         x <- 0 `range` ((length (fromMaybe [] (head arr))) - 1)
                         y <- 0 `range` ((length arr) - 1)
                         
-                        guard ((fromMaybe 'x' (index ( fromMaybe [] (index (arr) (x)) ) (y))) == 'L')
+                        guard ((fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y)) ) (x))) == 'L')
                         guard ((occupiedneighbors x y arr) == 0)
 
-                        pure [y,x]
+                        pure [x,y]
         turnToEmpty = do
                         x <- 0 `range` ((length (fromMaybe [] (head arr))) - 1)
                         y <- 0 `range` ((length arr) - 1)
                         
-                        guard ((fromMaybe 'x' (index ( fromMaybe [] (index (arr) (x)) ) (y))) == '#')
+                        guard ((fromMaybe 'x' (index ( fromMaybe [] (index (arr) (y)) ) (x))) == '#')
                         guard ((occupiedneighbors x y arr) > 3)
 
-                        pure [y,x]     
+                        pure [x,y]     
         
         changearrtoOccupied :: Array (Array Char) -> Array (Array Int) -> Array (Array Char)
         changearrtoOccupied arr1 arr2 = 
@@ -87,8 +72,17 @@ main = do
         newgrid1 = (changearrtoOccupied arr turnToOccupied)
         newgrid = (changearrtoEmpty newgrid1 turnToEmpty)
         
+    findendstate :: Array (Array Char) -> Array (Array Char)
+    findendstate arr =
+                  if arr == (runstep arr) 
+                        then arr 
+                        else findendstate $ runstep arr
 
+    occupiedinrow :: Array Char -> Int
+    occupiedinrow arr = length (filter (_ == '#' )arr )
 
+    countoccupied :: Array (Array Char) -> Int
+    countoccupied arr = sum (map occupiedinrow arr)
 
-  logShow $ runstep $ runstep grid
+  logShow $ countoccupied $ findendstate grid
   pure unit 
